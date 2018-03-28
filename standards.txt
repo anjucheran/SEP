@@ -1,0 +1,31 @@
+Objects ->  * If declaration is single line, no comma after last value.
+            * If it is multi line, comma should be placed after the last line.
+            * No space before colons and one space after colon.
+                # const a = {
+                    k1: v1,
+                    k2: v2,
+                  };
+                # const b = { k1: v1, k2: v2 };
+
+Arrays ->   * Arrays must be created using the Array syntax literal.
+                # const a = new Array(); //bad
+                # const a = []; //good
+
+Strings ->  * Static strings must be declared using single quotes or backticks. (single quotes prefered)
+            * Dynamic strings must be declared using ES6 template literals (backticks).
+            * NEVER USE DOUBLE QUOTES.
+                # const a  = 'foobar';
+                # const b = `foo${a}bar`; // String concatanation   ${a}
+                # const c = 'foobar';
+
+var, let, const ->  * `var` MUST NOT BE USED.
+                        # // bad
+                          const a = 1, b = 2, c = 3;
+
+                        # // good
+                         const a = 1;
+                         const b = 2;
+                         const c = 3;
+
+                        # // actually best
+                         const [a, b, c] = [1, 2, 3];

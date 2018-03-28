@@ -1,0 +1,18 @@
+.formdiv{
+  width: 60%;
+  margin: 3rem auto;
+  padding: 2rem 3%;
+  padding-bottom: 1%;
+  background: #ffffff;
+}
+
+.heading{
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-btn{
+  margin-top: 2rem; 
+  margin-bottom: 0.5rem;
+  text-align: center;
+}

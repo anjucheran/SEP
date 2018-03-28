@@ -1,0 +1,84 @@
+<% include partials/header %>
+
+<%
+  let today = new Date(date);
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'June', 'July', 'August', 'September', 'November', 'December'];
+  day = days[today.getDay()];
+  month = months[today.getMonth()];
+  monthDate = today.getDate();
+  const dayText = day + ', ' + month + ' ' + monthDate;
+%>
+
+<link rel="stylesheet" href="/stylesheets/centres.css">
+
+<h1 style="text-align:center; margin-top:1em; margin-bottom:1em;" class="border"><%= centre.name %> - <%= dayText %></h1>
+<div class="row">
+<div class="table-responsive-sm col-sm-8">
+  <table class="table table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Doctor</th>
+         <th scope="col">Available Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%
+      timeslots.forEach((timeslot) => {
+      %>
+        <tr>
+          <th scope="row"><%= timeslot.doctor.name %></th>
+          <td><%= timeslot.start %> - <%= timeslot.end %></td>
+        </tr>
+      <%
+      });
+      %>
+    </tbody>
+  </table>
+  <form action="/centre/<%=id%>/schedule" method="POST">
+    <div class="form-group">
+      <input type="date" class="form-control" id="date" name="date" value="<%= date %>" style="width:50%; display:inline-block;">
+      <button type="submit" class="btn btn-secondary">Get Schedule</button>
+    </div>
+  </form>
+  </div>
+  <div class="col-sm-4 border" style="padding-top:0.3em; height:100%;">
+    <h4 scope="col"><%= centre.name %></h4>
+    <hr>
+    <ul style="list-style-type: none; padding-left:0em;">
+      <li><a href="/centre/<%=id%>/doctors">Add/View Doctors</a></li>
+      <li><a href="/centre/<%=id%>/operators">Add/View Operators</a></li>
+      <li><a href="/centre/<%=id%>/operators">Add Time Slot</a></li>
+    </ul>
+  </div>
+</div>
+
+<h3>Pending Time Slots</h3>
+<div class="row">
+  <div class="table-responsive-sm col-sm-8">
+    <table class="table table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Doctor</th>
+          <th scope="col">Date</th>
+          <th scope="col">Available Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%
+        pendings.forEach((timeslot) => {
+        %>
+          <tr>
+            <th scope="row"><%= timeslot.doctor.name %></th>
+            <td><%= timeslot.date %></td>
+            <td><%= timeslot.start %> - <%= timeslot.end %></td>
+          </tr>
+        <%
+        });
+        %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% include partials/footer %>

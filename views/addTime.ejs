@@ -1,0 +1,101 @@
+<% include partials/header %>
+
+<link rel="stylesheet" href="/stylesheets/login.css">
+
+<%
+  const today = new Date();
+  let month = today.getMonth();
+  let date = today.getDate();
+  if(month < 9) {
+    month = '0' + (month + 1);
+  }
+  else {
+    month = month + 1;
+  }
+  if(date < 10) {
+    date = '0' + date;
+  }
+  const day = today.getFullYear() + '-' + month + '-' + date;
+%>
+
+<div class="formdiv border border-primary rounded">
+  <div class="heading"><h2>Add Time Slot</h2></div>
+  <form method="POST" action="/centre/<%=centre._id%>/doctor/<%=doctor._id%>/addtime">
+    <div class="form-group">
+      <label for="name">Channelling Centre</label>
+      <input type="text" class="form-control" id="name" value="<%= centre.name %>" readonly>
+    </div>
+    <div class="form-group">
+      <label for="docname">Doctor</label>
+      <input type="text" class="form-control" id="docname" value="<%= doctor.name %>" readonly>
+    </div>
+    <div class="form-group">
+      <label for="docname">Date</label>
+      <input type="date" class="form-control" id="date" name="date" value="<%= day %>">
+    </div>
+    <div class="form-group">
+      <label for="start">Starting Time</label>
+      <select class="form-control" id="start" name="start">
+        <%
+          let hour = void 0;
+          let minute = void 0;
+          let time = void 0;
+          const times = ['AM', 'PM']; 
+          for(let i = 0; i < 2; i = i + 1) {
+            for(let j = 0; j < 12; j = j + 1) {
+              for(let k = 0; k < 4; k = k + 1) {
+                if(j === 0) {
+                  hour = 12;
+                }
+                else {
+                  hour = j;
+                }
+                time = hour + ':' + k*15 + ' ' + times[i]; 
+                if(k === 0) {
+                  time = hour + ':' + '00 ' + times[i];
+                }
+        %>
+                <option><%= time %></option>
+        <%
+              }
+            }
+          }
+        %>
+        <option>12:00 Midnight</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="end">Ending Time</label>
+      <select class="form-control" id="end" name="end">
+        <%
+          for(let i = 0; i < 2; i = i + 1) {
+            for(let j = 0; j < 12; j = j + 1) {
+              for(let k = 0; k < 4; k = k + 1) {
+                if(j === 0) {
+                hour = 12;
+                }
+                else {
+                hour = j;
+                }
+                time = hour + ':' + k*15 + ' ' + times[i]; 
+                if(k === 0) {
+                  time = hour + ':' + '00 ' + times[i];
+                }
+        %>
+                <option><%= time %></option>
+        <%
+              }
+            }
+          }
+        %>
+        <option>12:00 Midnight</option>
+      </select>
+    </div>
+    <div class="login-btn">
+      <hr />
+      <button type="submit" class="btn btn-primary btn-lg">Add</button>
+    </div>
+  </form>
+</div>
+
+<% include partials/footer %>

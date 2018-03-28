@@ -1,0 +1,53 @@
+<% include partials/header %>
+
+<link rel="stylesheet" href="/stylesheets/centres.css">
+
+<div class="carddiv container">
+  <h2><%= centre.name %> - Doctors</h2>
+  <% doctors.forEach(function(doctor){ %>
+    <form class="card" action="/centre/<%=id%>/doctor/<%=doctor._id%>?_method=DELETE" method="POST">
+      <div class="card-body row">
+        <div class="col-sm-6">
+          <h5 class="card-title"><a href="/centre/<%= centre._id %>"><%=doctor.name%></a></h5>
+          <h6 class="card-subtitle"><%=doctor.category%></h6>
+          <p class="card-text"><%=centre.slmareg%></p>
+        </div>
+        <div class="col-6" style="text-align:right;">
+          <a href="/centre/<%=id%>/doctor/<%=doctor._id%>/addtime" class="btn btn-primary">Add Time Slot</a>
+          <a href="" class="btn btn-primary">View Time Slots</a>
+          <a href="" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Remove Doctor
+          </a>
+        </div>
+      </div>
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header" style="padding:0.6em;">
+                  <h5 class="modal-title" id="exampleModalLabel">Remove Doctor</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" style="padding-bottom:1em;">
+                  Are you sure, you want to remove Dr. <%=doctor.name%>?
+                </div>
+                <div class="modal-footer" style="padding:0.6em;">
+                  <input type="submit" class="btn btn-primary" value="Remove">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+    </form>
+  <% }); %>
+  <form method="POST" action="/centre/<%=id%>/doctors">
+    <div class="form-group">
+      <input type="text" class="form-control" id="slmareg" name="slmareg" placeholder="SLMA Registration Number" 
+      style="width:25%; display:inline-block;">
+      <button type="submit" class="btn btn-secondary">Add Doctor</button>
+    </div>
+  </form>
+</div>
+
+<% include partials/footer %>

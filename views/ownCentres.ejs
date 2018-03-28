@@ -1,0 +1,35 @@
+<% include partials/header %>
+
+<%
+  const today = new Date();
+  let month = today.getMonth();
+  let date = today.getDate();
+  if(month < 9) {
+    month = '0' + (month + 1);
+  }
+  else {
+    month = month + 1;
+  }
+  if(date < 10) {
+    date = '0' + date;
+  }
+  const day = today.getFullYear() + '-' + month + '-' + date;
+%>
+
+<link rel="stylesheet" href="/stylesheets/centres.css">
+
+<div class="carddiv container">
+  <h2>Channelling Centres</h2>
+  <% centres.forEach(function(centre){ %>
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title"><a href="/centre/<%= centre._id %>/schedule/<%= day %>"><%=centre.name%></a></h5>
+        <h6 class="card-subtitle"><%=centre.address%></h6>
+        <p class="card-text"><%=centre.contact%></p>
+      </div>
+    </div>
+  <% }); %>
+<a class="btn btn-md btn-primary" href="/user">Go to Home</a>
+</div>
+
+<% include partials/footer %>
