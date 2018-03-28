@@ -12,8 +12,19 @@
 
 <link rel="stylesheet" href="/stylesheets/centres.css">
 
-<h1 style="text-align:center; margin-top:1em; margin-bottom:1em;" class="border"><%= centre.name %> - <%= dayText %></h1>
+<h1 style="text-align:center; margin-bottom:0.5em;" class="border"><%= centre.name %> - <%= dayText %></h1>
 <div class="row">
+<div class="col-sm-4 container">
+  <div class="border" style="padding:0 0.5em; margin-bottom:0.5em;">
+    <h4 scope="col" style="padding-top:0.3em;"><%= centre.name %></h4>
+    <hr>
+    <ul style="list-style-type: none; padding-left:0em;">
+      <li><a href="/centre/<%=id%>/doctors">Add/View Doctors</a></li>
+      <li><a href="/centre/<%=id%>/operators">Add/View Operators</a></li>
+      <li><a href="/centre/<%=id%>/operators">Add Time Slot</a></li>
+    </ul>
+  </div>
+</div>
 <div class="table-responsive-sm col-sm-8">
   <table class="table table-bordered">
     <thead class="thead-dark">
@@ -42,20 +53,11 @@
     </div>
   </form>
   </div>
-  <div class="col-sm-4 border" style="padding-top:0.3em; height:100%;">
-    <h4 scope="col"><%= centre.name %></h4>
-    <hr>
-    <ul style="list-style-type: none; padding-left:0em;">
-      <li><a href="/centre/<%=id%>/doctors">Add/View Doctors</a></li>
-      <li><a href="/centre/<%=id%>/operators">Add/View Operators</a></li>
-      <li><a href="/centre/<%=id%>/operators">Add Time Slot</a></li>
-    </ul>
-  </div>
 </div>
 
-<h3>Pending Time Slots</h3>
-<div class="row">
+<div class="row justify-content-end">
   <div class="table-responsive-sm col-sm-8">
+    <h3>Pending Time Slots</h3>
     <table class="table table-bordered">
       <thead class="thead-dark">
         <tr>
