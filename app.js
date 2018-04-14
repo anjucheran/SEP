@@ -14,6 +14,7 @@ const Operator = require('./models/operator');
 const Admin = require('./models/admin');
 const Centre = require('./models/centre');
 const Timeslot = require('./models/timeslot');
+const City = require('./models/city');
 const app = express();
 
 const users = {'Normal User': Patient, 'Doctor': Doctor, 'Channelling Centre Owner': Owner, 'Admin': Admin,
@@ -37,6 +38,11 @@ passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user;
+  next();
+});
 
 const isLoggedIn = (req, res, next) => {
   if(req.isAuthenticated()){
@@ -75,6 +81,15 @@ const isOwnedBy = (req, res, next) => {
     return next();
   });
 };
+
+const getUsername = (user) => {
+  users[user.usertype].findOne({user: user._id}, (err, foundUser) => {
+    if(err) {
+      return err;
+    }
+    return foundUser.name;
+  });
+}
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -129,12 +144,23 @@ app.get('/secret', isLoggedIn, (req, res) => {
     res.redirect('/owner/centres');
   }
   else if(usertype === 'Doctor') {
-    res.redirect('/doctor');
+    let today = new Date();
+    date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    res.redirect(`/doctor/schedule/${date}`);
   }
 });
 
 app.get('/centre/new', isLoggedIn, isOwner, (req, res) => {
-  res.render('newCentre');
+  const name = getUsername(req.user);
+  console.log(name);
+  City.find({}, (err, cities) => {
+    if(err) {
+      console.log(err);
+    }
+    else {
+      res.render('newCentre', {username: getUsername(req.user), cities: cities});
+    }
+  });
 });
 
 app.post('/centre', isLoggedIn, isOwner, (req, res) => {
@@ -166,28 +192,12 @@ app.get('/owner/centres', isLoggedIn, isOwner, (req, res) => {
       return res.redirect('/');
     }
     const centres = owner.centres;
-    return res.render('ownCentres', {centres: centres});
+    return res.render('ownCentres', {name: owner.name, centres: centres, username: getUsername(req.user)});
   });
 });
 
-// app.get('/centre/:id', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-//   Centre.findOne({_id: req.params.id}).populate('doctors').populate('operators').exec((err, centre) => {
-//     if(err) {
-//       console.log(err);
-//       return res.redirect('/owner/centres');
-//     }
-//     const today = new Date();
-//     Timeslot.find({centre: req.params.id, date: today}).populate('doctor').exec((err, timeslots) => {
-//       if(err) {
-//         console.log(err);
-//       }
-//       return res.render('specCentre', {centre: centre, today: today, id: req.params.id, timeslots: timeslots});
-//     });
-//   });
-// });
-
 app.get('/centre/:id/schedule/:date', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  Timeslot.find({centre: req.params.id, date: req.params.date, pending: false}).populate('centre').populate('doctor').exec((err, timeslots) => {
+  Timeslot.find({centre: req.params.id, date: req.params.date, pending: false, declined: 0}).populate('centre').populate('doctor').exec((err, timeslots) => {
     if(err) {
       console.log(err);
       return res.redirect('/owner/centres');
@@ -196,14 +206,14 @@ app.get('/centre/:id/schedule/:date', isLoggedIn, isOwner, isOwnedBy, (req, res)
       if(err) {
         console.log(err);
       }
-      Timeslot.find({centre: req.params.id, pending: true}).
+      Timeslot.find({centre: req.params.id, pending: true, declined: 0}).
       populate('centre').populate('doctor').exec((err, pendings) => {
         if(err) {
           console.log(err);
           return res.redirect('/owner/centres');
         }
         return res.render('schedule', {id: req.params.id, centre: centre, timeslots: timeslots, 
-          date: req.params.date, pendings: pendings});
+          date: req.params.date, pendings: pendings, username: getUsername(req.user)});
       });
     });
   });
@@ -215,7 +225,7 @@ app.get('/centre/:id/doctors', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
       console.log(err);
       return res.redirect('/owner/centres');
     }
-    return res.render('centreDoctors', {centre: centre, doctors: centre.doctors, id: req.params.id});
+    return res.render('centreDoctors', {centre: centre, doctors: centre.doctors, id: req.params.id, username: getUsername(req.user)});
   });
 });
 
@@ -263,9 +273,9 @@ app.get('/centre/:id/doctor/:docID/addtime', isLoggedIn, isOwner, isOwnedBy, (re
       }
       const index = centre.doctors.indexOf(doctor._id);
       if(index !== -1) {
-        return res.render('addTime', {centre: centre, doctor: doctor});
+        return res.render('addTime', {centre: centre, doctor: doctor, username: getUsername(req.user)});
       }
-      return res.render('/centre/' + req.params.id + '/doctors');
+      return res.redirect('/centre/' + req.params.id + '/doctors');
     });
   });
 });
@@ -295,19 +305,63 @@ app.post('/centre/:id/schedule', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
   res.redirect(`/centre/${req.params.id}/schedule/${req.body.date}`);
 });
 
-app.get('/doctor', isLoggedIn, isDoctor, (req, res) => {
+app.get('/doctor/schedule/:date', isLoggedIn, isDoctor, (req, res) => {
   Doctor.findOne({user: req.user._id}, (err, doctor) => {
     if(err) {
       console.log(err);
       return res.redirect('/');
     }
-    Timeslot.find({doctor: doctor._id, pending: true}).populate('centre').exec((err, pendings) => {
+    Timeslot.find({doctor: doctor._id, pending: true, declined: 0}).populate('centre').exec((err, pendings) => {
       if(err) {
         console.log(err);
         return res.redirect('/');
       }
-      return res.render('doctorHome', {doctor: doctor, pendings: pendings});
+      return res.render('doctorHome', {doctor: doctor, pendings: pendings, username: getUsername(req.user),
+      date: req.params.date});
     });
+  });
+});
+
+app.post('/timeslot/:id/:date/owner/remove', (req, res) => {
+  const id = req.params.id;
+  const date = req.params.date;
+  Timeslot.findById(id, (err, timeslot) => {
+    if(err) {
+      console.log(err);
+    }
+    else {
+      timeslot.declined = 1;
+      timeslot.save();
+      return res.redirect(`/centre/${timeslot.centre}/schedule/${date}`);
+    }
+  });
+});
+
+app.post('/timeslot/:id/doctor/remove', (req, res) => {
+  const id = req.params.id;
+  Timeslot.findById(id, (err, timeslot) => {
+    if(err) {
+      console.log(err);
+    }
+    else {
+      timeslot.declined = 2;
+      timeslot.save();
+      return res.redirect('/doctor');
+    }
+  });
+});
+
+app.post('/timeslot/:id/accept', (req, res) => {
+  const id = req.params.id;
+  Timeslot.findById(id, (err, timeslot) => {
+    if(err) {
+      console.log(err);
+    }
+    else {
+      timeslot.pending = false;
+      timeslot.save();
+      return res.redirect('/doctor');
+    }
   });
 });
 

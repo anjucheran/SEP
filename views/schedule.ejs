@@ -22,6 +22,7 @@
       <li><a href="/centre/<%=id%>/doctors">Add/View Doctors</a></li>
       <li><a href="/centre/<%=id%>/operators">Add/View Operators</a></li>
       <li><a href="/centre/<%=id%>/operators">Add Time Slot</a></li>
+      <li><a href="/secret">Go to homepage</a></li>      
     </ul>
   </div>
 </div>
@@ -56,30 +57,56 @@
 </div>
 
 <div class="row justify-content-end">
-  <div class="table-responsive-sm col-sm-8">
+  <div class="col-sm-8">
     <h3>Pending Time Slots</h3>
-    <table class="table table-bordered">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">Doctor</th>
-          <th scope="col">Date</th>
-          <th scope="col">Available Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%
-        pendings.forEach((timeslot) => {
-        %>
+    <div class="table-responsive-sm">
+      <table class="table table-striped">
+        <thead class="thead-dark">
           <tr>
-            <th scope="row"><%= timeslot.doctor.name %></th>
-            <td><%= timeslot.date %></td>
-            <td><%= timeslot.start %> - <%= timeslot.end %></td>
+            <th scope="col">Doctor</th>
+            <th scope="col">Date</th>
+            <th scope="col">Available Time</th>
+            <th scope="col"></th>
           </tr>
-        <%
-        });
-        %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <%
+          pendings.forEach((timeslot) => {
+          %>
+            <tr>
+              <th scope="row"><%= timeslot.doctor.name %></th>
+              <td><%= timeslot.date %></td>
+              <td><%= timeslot.start %> - <%= timeslot.end %></td>
+              <form action="/timeslot/<%= timeslot._id %>/<%= date %>/owner/remove" method="POST">
+                <td><a class="btn btn-primary" href="" data-toggle="modal" data-target="#exampleModal">Remove</a></td>
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" 
+                aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header" style="padding:0.6em;">
+                        <h5 class="modal-title" id="exampleModalLabel">Remove Time Slot</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body" style="padding-bottom:1em;">
+                        Are you sure, you want to remove this time slot?
+                      </div>
+                      <div class="modal-footer" style="padding:0.6em;">
+                        <input type="submit" class="btn btn-primary" value="Remove">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </tr>
+          <%
+          });
+          %>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

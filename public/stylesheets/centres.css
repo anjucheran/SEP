@@ -1,7 +1,11 @@
 .carddiv{
-  margin-top: 3%;
+  margin-top: 0;
 }
 
 .card{
   margin-bottom: 1%;
+}
+
+a:hover{
+  text-decoration: none;
 }

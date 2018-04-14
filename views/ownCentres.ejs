@@ -18,18 +18,43 @@
 
 <link rel="stylesheet" href="/stylesheets/centres.css">
 
-<div class="carddiv container">
-  <h2>Channelling Centres</h2>
-  <% centres.forEach(function(centre){ %>
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title"><a href="/centre/<%= centre._id %>/schedule/<%= day %>"><%=centre.name%></a></h5>
-        <h6 class="card-subtitle"><%=centre.address%></h6>
-        <p class="card-text"><%=centre.contact%></p>
-      </div>
+<div class="row">
+  <div class="col-sm-4 container">
+    <div class="border" style="padding:0 0.5em; margin-bottom:0.5em;">
+      <h4 scope="col" style="padding-top:0.3em;"><%= name %></h4>
+      <hr>
+      <ul style="list-style-type: none; padding-left:0em;">
+        <li><a href="/centre/new">Add Centre</a></li>
+        <li><a href="">Edit/Remove Centre</a></li>
+        <li><a href="">View/Edit Profile</a></li>
+      </ul>
     </div>
-  <% }); %>
-<a class="btn btn-md btn-primary" href="/user">Go to Home</a>
+  </div>
+  <div class="carddiv container col-sm-8">
+    <h2>Channelling Centres</h2>
+    <% centres.forEach(function(centre){ %>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title"><a href="/centre/<%= centre._id %>/schedule/<%= day %>"><%=centre.name%></a></h5>
+          <h6 class="card-subtitle"><%=centre.address%></h6>
+          <p class="card-text"><%=centre.contact%></p>
+        </div>
+      </div>
+    <% 
+      }); 
+      if(centres.length === 0) {
+    %>
+        <div class="card">
+          <div class="card-body" style="text-align:center;">
+            <h5 class="card-title">You haven't registered any channelling centres yet.</h5>
+            <h6 class="card-subtitle">Add your first centre here!</h6>
+            <p class="card-text" style="margin-top:0.3em;"><a href="/centre/new" class="btn btn-primary">Add Centre</a></p>
+          </div>
+        </div>
+    <%
+      }
+    %>
+  </div>
 </div>
 
 <% include partials/footer %>
