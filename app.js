@@ -20,6 +20,10 @@ const app = express();
 const users = {'Normal User': Patient, 'Doctor': Doctor, 'Channelling Centre Owner': Owner, 'Admin': Admin,
 'Operator': Operator};
 
+const ownerRoutes = require('./routes/owner');
+
+app.use(ownerRoutes);
+
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(methodOverride('_method'));
@@ -150,161 +154,6 @@ app.get('/secret', isLoggedIn, (req, res) => {
   }
 });
 
-app.get('/centre/new', isLoggedIn, isOwner, (req, res) => {
-  const name = getUsername(req.user);
-  console.log(name);
-  City.find({}, (err, cities) => {
-    if(err) {
-      console.log(err);
-    }
-    else {
-      res.render('newCentre', {username: getUsername(req.user), cities: cities});
-    }
-  });
-});
-
-app.post('/centre', isLoggedIn, isOwner, (req, res) => {
-  const name = req.body.name;
-  const slmareg = req.body.slmareg;
-  const address = req.body.address;
-  const contact = req.body.contact;
-  let centre = new Centre();
-  centre.name = name;
-  centre.slmareg = slmareg;
-  centre.address = address;
-  centre.contact = contact;
-  centre.save();
-  Owner.findOne({user: req.user._id}, (err, owner) => {
-    if(err) {
-      console.log(err);
-      return res.redirect('/');
-    }
-    owner.centres.push(centre._id);
-    owner.save();
-    return res.redirect('/owner/centres');
-  });
-});
-
-app.get('/owner/centres', isLoggedIn, isOwner, (req, res) => {
-  Owner.findOne({user: req.user._id}).populate('centres').exec((err, owner) => {
-    if(err) {
-      console.log(err);
-      return res.redirect('/');
-    }
-    const centres = owner.centres;
-    return res.render('ownCentres', {name: owner.name, centres: centres, username: getUsername(req.user)});
-  });
-});
-
-app.get('/centre/:id/schedule/:date', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  Timeslot.find({centre: req.params.id, date: req.params.date, pending: false, declined: 0}).populate('centre').populate('doctor').exec((err, timeslots) => {
-    if(err) {
-      console.log(err);
-      return res.redirect('/owner/centres');
-    }
-    Centre.findById(req.params.id, (err, centre) => {
-      if(err) {
-        console.log(err);
-      }
-      Timeslot.find({centre: req.params.id, pending: true, declined: 0}).
-      populate('centre').populate('doctor').exec((err, pendings) => {
-        if(err) {
-          console.log(err);
-          return res.redirect('/owner/centres');
-        }
-        return res.render('schedule', {id: req.params.id, centre: centre, timeslots: timeslots, 
-          date: req.params.date, pendings: pendings, username: getUsername(req.user)});
-      });
-    });
-  });
-});
-
-app.get('/centre/:id/doctors', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  Centre.findOne({_id: req.params.id}).populate('doctors').exec((err, centre) => {
-    if(err) {
-      console.log(err);
-      return res.redirect('/owner/centres');
-    }
-    return res.render('centreDoctors', {centre: centre, doctors: centre.doctors, id: req.params.id, username: getUsername(req.user)});
-  });
-});
-
-app.post('/centre/:id/doctors', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  const slmareg = req.body.slmareg;
-  Centre.findOne({_id: req.params.id}, (err, centre) => {
-    if(err) {
-      console.log(err);
-      return res.redirect('/owner/centres');
-    }
-    Doctor.findOne({slmareg: slmareg}, (err, doctor) => {
-      if(err) {
-        console.log(err);
-        return res.redirect('/centre/' + req.params.id + '/doctors');
-      }
-      centre.doctors.push(doctor._id);
-      centre.save();
-      return res.redirect('/centre/' + req.params.id + '/doctors');
-    });
-  });
-});
-
-app.delete('/centre/:id/doctor/:docID', isLoggedIn, isOwner, isOwnedBy, (req,res) => {
-  Centre.findOne({_id: req.params.id}, (err, centre) => {
-    if(err){
-      console.log(err);
-      return res.redirect('/owner/centres');
-    }
-    centre.doctors.pull(req.params.docID);
-    centre.save();
-    return res.redirect('/centre/' + req.params.id + '/doctors');
-  });
-});
-
-app.get('/centre/:id/doctor/:docID/addtime', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  Centre.findOne({_id: req.params.id}, (err, centre) => {
-    if(err) {
-      console.log(err);
-      return res.redirect('/owner/centres');
-    }
-    Doctor.findOne({_id: req.params.docID}, (err, doctor) => {
-      if(err) {
-        console.log(err);
-        return res.redirect('/owner/centres');
-      }
-      const index = centre.doctors.indexOf(doctor._id);
-      if(index !== -1) {
-        return res.render('addTime', {centre: centre, doctor: doctor, username: getUsername(req.user)});
-      }
-      return res.redirect('/centre/' + req.params.id + '/doctors');
-    });
-  });
-});
-
-app.post('/centre/:id/doctor/:docID/addtime', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  Centre.findOne({_id: req.params.id}, (err, centre) => {
-    if(err){
-      console.log(err);
-      return res.redirect('/owner/centres');
-    }
-    const index = centre.doctors.indexOf(req.params.docID);
-    if(index !== -1) {
-      let timeslot = new Timeslot();
-      timeslot.doctor = req.params.docID;
-      timeslot.centre = req.params.id;
-      timeslot.date = req.body.date;
-      timeslot.start = req.body.start;
-      timeslot.end = req.body.end;
-      timeslot.save();
-      return res.redirect(`/centre/${req.params.id}/schedule/${req.body.date}`);
-    }
-    return res.render('/centre/' + req.params.id + '/doctors');
-  });
-});
-
-app.post('/centre/:id/schedule', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  res.redirect(`/centre/${req.params.id}/schedule/${req.body.date}`);
-});
-
 app.get('/doctor/schedule/:date', isLoggedIn, isDoctor, (req, res) => {
   Doctor.findOne({user: req.user._id}, (err, doctor) => {
     if(err) {
@@ -319,21 +168,6 @@ app.get('/doctor/schedule/:date', isLoggedIn, isDoctor, (req, res) => {
       return res.render('doctorHome', {doctor: doctor, pendings: pendings, username: getUsername(req.user),
       date: req.params.date});
     });
-  });
-});
-
-app.post('/timeslot/:id/:date/owner/remove', (req, res) => {
-  const id = req.params.id;
-  const date = req.params.date;
-  Timeslot.findById(id, (err, timeslot) => {
-    if(err) {
-      console.log(err);
-    }
-    else {
-      timeslot.declined = 1;
-      timeslot.save();
-      return res.redirect(`/centre/${timeslot.centre}/schedule/${date}`);
-    }
   });
 });
 
