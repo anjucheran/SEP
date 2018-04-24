@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 
 const User = require('../models/user');
 const Patient = require('../models/patient');
@@ -13,6 +15,19 @@ const City = require('../models/city');
 
 const users = {'Normal User': Patient, 'Doctor': Doctor, 'Channelling Centre Owner': Owner, 'Admin': Admin,
 'Operator': Operator};
+
+router.use(require('express-session')({
+  secret: 'Channelling made easier',
+  resave: true,
+  saveUninitialized: true
+}));
+router.use(passport.initialize());
+router.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 const isLoggedIn = (req, res, next) => {
   if(req.isAuthenticated()){
@@ -43,6 +58,15 @@ const isOwnedBy = (req, res, next) => {
     return next();
   });
 };
+
+const getUsername = (user) => {
+  users[user.usertype].findOne({user: user._id}, (err, foundUser) => {
+    if(err) {
+      return err;
+    }
+    return foundUser.name;
+  });
+}
 
 router.get('/centre/new', isLoggedIn, isOwner, (req, res) => {
   const name = getUsername(req.user);

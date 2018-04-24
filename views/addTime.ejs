@@ -1,5 +1,6 @@
 <% include partials/header %>
 
+<link rel="stylesheet" href="/stylesheets/centres.css">
 <link rel="stylesheet" href="/stylesheets/login.css">
 
 <%
@@ -20,7 +21,7 @@
 
 <div class="formdiv border border-primary rounded">
   <div class="heading"><h2>Add Time Slot</h2></div>
-  <form method="POST" action="/centre/<%=centre._id%>/doctor/<%=doctor._id%>/addtime">
+  <form id="new" method="POST" action="/centre/<%=centre._id%>/doctor/<%=doctor._id%>/addtime">
     <div class="form-group">
       <label for="name">Channelling Centre</label>
       <input type="text" class="form-control" id="name" value="<%= centre.name %>" readonly>
@@ -30,72 +31,62 @@
       <input type="text" class="form-control" id="docname" value="<%= doctor.name %>" readonly>
     </div>
     <div class="form-group">
-      <label for="docname">Date</label>
+      <label for="date">Date</label>
       <input type="date" class="form-control" id="date" name="date" value="<%= day %>">
     </div>
     <div class="form-group">
       <label for="start">Starting Time</label>
-      <select class="form-control" id="start" name="start">
-        <%
-          let hour = void 0;
-          let minute = void 0;
-          let time = void 0;
-          const times = ['AM', 'PM']; 
-          for(let i = 0; i < 2; i = i + 1) {
-            for(let j = 0; j < 12; j = j + 1) {
-              for(let k = 0; k < 4; k = k + 1) {
-                if(j === 0) {
-                  hour = 12;
-                }
-                else {
-                  hour = j;
-                }
-                time = hour + ':' + k*15 + ' ' + times[i]; 
-                if(k === 0) {
-                  time = hour + ':' + '00 ' + times[i];
-                }
-        %>
-                <option><%= time %></option>
-        <%
-              }
-            }
-          }
-        %>
-        <option>12:00 Midnight</option>
-      </select>
+      <input type="time" class="form-control" id="start" name="start" value="08:00">      
     </div>
     <div class="form-group">
       <label for="end">Ending Time</label>
-      <select class="form-control" id="end" name="end">
-        <%
-          for(let i = 0; i < 2; i = i + 1) {
-            for(let j = 0; j < 12; j = j + 1) {
-              for(let k = 0; k < 4; k = k + 1) {
-                if(j === 0) {
-                hour = 12;
-                }
-                else {
-                hour = j;
-                }
-                time = hour + ':' + k*15 + ' ' + times[i]; 
-                if(k === 0) {
-                  time = hour + ':' + '00 ' + times[i];
-                }
-        %>
-                <option><%= time %></option>
-        <%
-              }
-            }
-          }
-        %>
-        <option>12:00 Midnight</option>
-      </select>
+      <input type="time" class="form-control" id="end" name="end" value="08:00">            
     </div>
     <div class="login-btn">
       <hr />
-      <button type="submit" class="btn btn-primary btn-lg">Add</button>
+      <button type="submit" id="sub" class="btn btn-primary btn-lg">Add</button>
     </div>
   </form>
 </div>
+
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="padding:0.6em;">
+        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="errorModalBody" style="padding-bottom:1em;">Please input valid date!</div>
+      <div class="modal-footer" style="padding:0.6em;">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('new').addEventListener('submit', (event) => {
+    let start = document.getElementById('start').value;
+    let end = document.getElementById('end').value;
+    let date = new Date(document.getElementById('date').value);
+    const today = new Date();
+    if(date < today) {
+      document.getElementById('errorModalLabel').innerHTML = 'Date Error';
+      document.getElementById('errorModalBody').innerHTML = 'Please input a valid date!';
+      $("#errorModal").modal();   
+      event.preventDefault();
+      return false;
+    }
+    if(start >= end) {
+      document.getElementById('errorModalLabel').innerHTML = 'Time Error';
+      document.getElementById('errorModalBody').innerHTML = 'Please input valid start and end times!';
+      $("#errorModal").modal(); 
+      event.preventDefault();
+      return false;
+    }
+  });
+</script>
 
 <% include partials/footer %>

@@ -22,8 +22,6 @@ const users = {'Normal User': Patient, 'Doctor': Doctor, 'Channelling Centre Own
 
 const ownerRoutes = require('./routes/owner');
 
-app.use(ownerRoutes);
-
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(methodOverride('_method'));
@@ -47,6 +45,8 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.user;
   next();
 });
+
+app.use(ownerRoutes);
 
 const isLoggedIn = (req, res, next) => {
   if(req.isAuthenticated()){
