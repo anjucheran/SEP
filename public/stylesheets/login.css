@@ -1,5 +1,6 @@
 .formdiv{
   width: 40%;
+  min-width: 280px;
   margin: 3rem auto;
   padding: 2rem 3%;
   padding-bottom: 1%;

@@ -13,19 +13,70 @@
 %>
 
 <div class="row">
-  <div class="col-sm-4 border" style="padding-top:0.3em; height:100%;">
-    <h4 scope="col"><%= doctor.name %></h4>
-    <hr>
-    <ul style="list-style-type: none; padding-left:0em;">
-      <li><a href="">Add/View Doctors</a></li>
-      <li><a href="">Add/View Operators</a></li>
-      <li><a href="">Add Time Slot</a></li>
-    </ul>
+  <div class="container col-sm-4">
+    <div class="border" style="padding:0 0.5em; margin-bottom:0.5em;">
+      <h4 scope="col"><%= doctor.name %></h4>
+      <hr>
+      <ul style="list-style-type: none; padding-left:0em;">
+        <li><a href="">Add/View Doctors</a></li>
+        <li><a href="">Add/View Operators</a></li>
+        <li><a href="">Add Time Slot</a></li>
+      </ul>
+    </div>
   </div>
+  <%
+    if(timeslots.length === 0) {
+  %>
+      <div class="card col-sm-8">
+        <div class="card-body" style="text-align:center;">
+          <h5 class="card-title">You don't have any appointments from channelling centres for the day yet.</h5>
+          <h6 class="card-subtitle">Ask owners to add timeslots!</h6>
+        </div>
+  <%
+    } 
+    else {
+  %>
+  <div class="col-sm-8">
+    <h3><%= dayText %> - Schedule</h3>
+    <div class="table-responsive-sm">
+      <table class="table table-bordered">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Channelling Centre</th>
+            <th scope="col">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%
+          timeslots.forEach((timeslot) => {
+          %>
+            <tr>
+              <th scope="row"><%= timeslot.date %></th>
+              <td><%= timeslot.centre.name %></td>
+              <td><%= timeslot.start %> - <%= timeslot.end %></td>
+            </tr>
+          <%
+          });
+          %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+  <form action="/doctor/schedule" method="POST">
+    <div class="form-group">
+      <input type="date" class="form-control" id="date" name="date" value="<%= date %>" style="width:50%; display:inline-block;">
+      <button type="submit" class="btn btn-secondary">Get Schedule</button>
+    </div>
+  </form>
+  </div>
+</div>
+<% if(pendings.length > 0) { %>
+<div class="row justify-content-end">
   <div class="col-sm-8">
     <h3>Pending Time Slots</h3>
     <div class="table-responsive-sm">
-      <table class="table table-bordered">
+      <table class="table table-striped">
         <thead class="thead-dark">
           <tr>
             <th scope="col">Date</th>
@@ -44,41 +95,9 @@
               <td><%= timeslot.centre.name %></td>
               <td><%= timeslot.start %> - <%= timeslot.end %></td>
               <form action="/timeslot/<%= timeslot._id %>/accept" method="POST">
-                <td><input type="submit" class="btn btn-primary" value="Accept"></td>
-              </form><form action="/timeslot/<%= timeslot._id %>/doctor/remove" method="POST">
-                <td><input type="submit" class="btn btn-primary" value="Decline"></td>
+                <td><button class="btn btn-primary" type="submit">Accept</button></td>                
               </form>
-            </tr>
-          <%
-          });
-          %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-<div class="row justify-content-end">
-  <div class="col-sm-8">
-    <h3><%= dayText %> - Schedule</h3>
-    <div class="table-responsive-sm">
-      <table class="table table-striped">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">Doctor</th>
-            <th scope="col">Date</th>
-            <th scope="col">Available Time</th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <%
-          pendings.forEach((timeslot) => {
-          %>
-            <tr>
-              <th scope="row"><%= timeslot.doctor.name %></th>
-              <td><%= timeslot.date %></td>
-              <td><%= timeslot.start %> - <%= timeslot.end %></td>
-              <form action="/timeslot/<%= timeslot._id %>/<%= date %>/owner/remove" method="POST">
+              <form action="/timeslot/<%= timeslot._id %>/doctor/remove" method="POST">
                 <td><a class="btn btn-primary" href="" data-toggle="modal" data-target="#exampleModal">Remove</a></td>
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" 
                 aria-hidden="true">
@@ -110,5 +129,6 @@
     </div>
   </div>
 </div>
+<% } %>
 
 <% include partials/footer %>

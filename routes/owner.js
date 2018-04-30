@@ -83,12 +83,12 @@ router.get('/centre/new', isLoggedIn, isOwner, (req, res) => {
 
 router.post('/centre', isLoggedIn, isOwner, (req, res) => {
   const name = req.body.name;
-  const slmareg = req.body.slmareg;
+  const slmcreg = req.body.slmcreg;
   const address = req.body.address;
   const contact = req.body.contact;
   let centre = new Centre();
   centre.name = name;
-  centre.slmareg = slmareg;
+  centre.slmcreg = slmcreg;
   centre.address = address;
   centre.contact = contact;
   centre.save();
@@ -148,13 +148,13 @@ router.get('/centre/:id/doctors', isLoggedIn, isOwner, isOwnedBy, (req, res) => 
 });
 
 router.post('/centre/:id/doctors', isLoggedIn, isOwner, isOwnedBy, (req, res) => {
-  const slmareg = req.body.slmareg;
+  const slmcreg = req.body.slmcreg;
   Centre.findOne({_id: req.params.id}, (err, centre) => {
     if(err) {
       console.log(err);
       return res.redirect('/owner/centres');
     }
-    Doctor.findOne({slmareg: slmareg}, (err, doctor) => {
+    Doctor.findOne({slmcreg: slmcreg}, (err, doctor) => {
       if(err) {
         console.log(err);
         return res.redirect('/centre/' + req.params.id + '/doctors');

@@ -5,3 +5,11 @@ body{
 .first{
   margin-top: 0.8em;
 }
+
+a.btn.nav-link.auth {
+  color: black;
+}
+
+a.btn.nav-link.auth:hover {
+  color: rgb(14, 75, 132);
+}

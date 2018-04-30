@@ -118,7 +118,7 @@ app.post('/register', (req, res) => {
       specUser.name = req.body.name;
       specUser.user = user._id;
       if(usertype === 'Doctor') {
-        specUser.slmareg = req.body.slmareg;
+        specUser.slmcreg = req.body.slmcreg;
       }
       specUser.save();
       passport.authenticate('local')(req, res, () =>{
@@ -149,7 +149,18 @@ app.get('/secret', isLoggedIn, (req, res) => {
   }
   else if(usertype === 'Doctor') {
     let today = new Date();
-    date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    let month = today.getMonth();
+    let day = today.getDate();
+    if(month < 9) {
+      month = '0' + (month + 1);
+    }
+    else {
+      month = month + 1;
+    }
+    if(day < 10) {
+      day = '0' + day;
+    }
+    let date = `${today.getFullYear()}-${month}-${day}`;
     res.redirect(`/doctor/schedule/${date}`);
   }
 });
@@ -165,8 +176,15 @@ app.get('/doctor/schedule/:date', isLoggedIn, isDoctor, (req, res) => {
         console.log(err);
         return res.redirect('/');
       }
-      return res.render('doctorHome', {doctor: doctor, pendings: pendings, username: getUsername(req.user),
-      date: req.params.date});
+      Timeslot.find({doctor: doctor._id, pending: false, declined: 0, date: req.params.date}).populate('centre')
+      .exec((err, timeslots) => {
+        if(err) {
+          console.log(err);
+          return res.redirect('/');
+        }
+        return res.render('doctorHome', {doctor: doctor, pendings: pendings, timeslots: timeslots, 
+          username: getUsername(req.user), date: req.params.date});
+      });
     });
   });
 });
@@ -180,7 +198,7 @@ app.post('/timeslot/:id/doctor/remove', (req, res) => {
     else {
       timeslot.declined = 2;
       timeslot.save();
-      return res.redirect('/doctor');
+      return res.redirect('/secret');
     }
   });
 });
@@ -194,9 +212,14 @@ app.post('/timeslot/:id/accept', (req, res) => {
     else {
       timeslot.pending = false;
       timeslot.save();
-      return res.redirect('/doctor');
+      return res.redirect('/secret');
     }
   });
+});
+
+app.post('/doctor/schedule/:date', (req, res) => {
+  const date = req.body.date;
+  res.redirect(`/doctor/schedule/${date}`);
 });
 
 app.listen(3000, () => console.log('App listening on port 3000!'));

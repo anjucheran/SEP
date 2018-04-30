@@ -26,6 +26,19 @@
     </ul>
   </div>
 </div>
+<%
+  if(timeslots.length === 0) {
+%>
+    <div class="card col-sm-8">
+      <div class="card-body" style="text-align:center;">
+        <h5 class="card-title">Your centre doesn't has any appointments for the day yet.</h5>
+        <h6 class="card-subtitle">Add an appointment for a doctor!</h6>
+        <p class="card-text" style="margin-top:0.3em;"><a href="/centre/<%=id%>/doctors" class="btn btn-primary">Add Appointment</a></p>
+      </div>
+<%
+  } 
+  else {
+%>
 <div class="table-responsive-sm col-sm-8">
   <table class="table table-bordered">
     <thead class="thead-dark">
@@ -47,15 +60,21 @@
       %>
     </tbody>
   </table>
+<%
+  }
+%>
   <form action="/centre/<%=id%>/schedule" method="POST">
     <div class="form-group">
       <input type="date" class="form-control" id="date" name="date" value="<%= date %>" style="width:50%; display:inline-block;">
       <button type="submit" class="btn btn-secondary">Get Schedule</button>
     </div>
   </form>
-  </div>
+</div>
 </div>
 
+<%
+if (pendings.length) {
+%>
 <div class="row justify-content-end">
   <div class="col-sm-8">
     <h3>Pending Time Slots</h3>
@@ -109,5 +128,6 @@
     </div>
   </div>
 </div>
+<% } %>
 
 <% include partials/footer %>

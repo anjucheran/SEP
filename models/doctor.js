@@ -9,7 +9,7 @@ const Doctor = new Schema({
   gender : String,
   nic : String,
   address : String,
-  slmareg : String,
+  slmaceg : String,
   category : String,
 });
 

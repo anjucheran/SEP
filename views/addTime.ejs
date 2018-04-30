@@ -32,15 +32,16 @@
     </div>
     <div class="form-group">
       <label for="date">Date</label>
-      <input type="date" class="form-control" id="date" name="date" value="<%= day %>">
+      <input type="date" required class="form-control" id="date" name="date" min="<%= day %>" value="<%= day %>" 
+      onkeydown="return false">
     </div>
     <div class="form-group">
       <label for="start">Starting Time</label>
-      <input type="time" class="form-control" id="start" name="start" value="08:00">      
+      <input type="time" required class="form-control" id="start" name="start" value="08:00">      
     </div>
     <div class="form-group">
       <label for="end">Ending Time</label>
-      <input type="time" class="form-control" id="end" name="end" value="08:00">            
+      <input type="time" required class="form-control" id="end" name="end" value="08:00">            
     </div>
     <div class="login-btn">
       <hr />
@@ -70,15 +71,6 @@
   document.getElementById('new').addEventListener('submit', (event) => {
     let start = document.getElementById('start').value;
     let end = document.getElementById('end').value;
-    let date = new Date(document.getElementById('date').value);
-    const today = new Date();
-    if(date < today) {
-      document.getElementById('errorModalLabel').innerHTML = 'Date Error';
-      document.getElementById('errorModalBody').innerHTML = 'Please input a valid date!';
-      $("#errorModal").modal();   
-      event.preventDefault();
-      return false;
-    }
     if(start >= end) {
       document.getElementById('errorModalLabel').innerHTML = 'Time Error';
       document.getElementById('errorModalBody').innerHTML = 'Please input valid start and end times!';

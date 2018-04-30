@@ -4,7 +4,7 @@
 
 <div class="carddiv container">
   <h2><%= centre.name %> - Doctors</h2>
-  <% doctors.forEach(function(doctor){ %>
+  <% doctors.forEach((doctor) => { %>
     <form class="card" action="/centre/<%=id%>/doctor/<%=doctor._id%>?_method=DELETE" method="POST">
       <div class="card-body row">
         <div class="col-sm-6">
@@ -40,12 +40,21 @@
             </div>
           </div>
     </form>
-  <% }); %>
+  <% }); 
+    if (doctors.length === 0) {  
+  %>
+  </div>
+  <div class="card" style="text-align:center;">
+    <div class="card-body" style="text-align:center;">
+      <h5 class="card-title">Your centre doesn't has any doctors yet.</h5>
+      <h6 class="card-subtitle">Add a doctor below!</h6>
+    </div>
+  <% } %>
   <form method="POST" action="/centre/<%=id%>/doctors">
     <div class="form-group">
-      <input type="text" class="form-control" id="slmareg" name="slmareg" placeholder="SLMA Registration Number" 
+      <input type="text" class="form-control" id="slmcreg" name="slmcreg" placeholder="SLMC Registration Number" 
       style="width:25%; display:inline-block;">
-      <button type="submit" class="btn btn-secondary">Add Doctor</button>
+      <button type="submit" class="btn btn-primary">Add Doctor</button>
     </div>
   </form>
 </div>

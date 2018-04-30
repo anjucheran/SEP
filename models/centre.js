@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const Centre = new Schema({
   name : String,
-  slmareg : String,
+  slmcreg : String,
   address : String,
   contact : String,
   doctors : [{type: mongoose.Schema.Types.ObjectId, ref: 'Doctor'}],
